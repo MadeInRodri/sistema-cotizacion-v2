@@ -52,7 +52,7 @@ SISTEMA-COTIZACION-V2/
 
 1.  **Clonar el repositorio:**
     ```bash
-    git clone [https://github.com/tu-usuario/sistema-cotizacion-v2.git](https://github.com/tu-usuario/sistema-cotizacion-v2.git)
+    git clone https://github.com/MadeInRodri/sistema-cotizacion-v2
     ```
 2.  **Preparar el entorno:**
     Asegúrate de tener un servidor local configurado (XAMPP, Laragon, MAMP) con Apache y MySQL activados. Mueve la carpeta del proyecto al directorio público (ej. `htdocs`).
