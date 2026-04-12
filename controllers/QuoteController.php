@@ -30,6 +30,31 @@ class QuoteController {
         echo json_encode(["status" => "success", "quotes" => $data]);
     }
 
+    public function getQuotes() {
+        header('Content-Type: application/json');
+        
+        if (!isset($_SESSION['user_id'])) {
+            http_response_code(401);
+            echo json_encode(["status" => "error", "message" => "No autorizado"]);
+            return;
+        }
+
+        $quotes = Quote::getAll();
+        
+        $data = [];
+        foreach ($quotes as $q) {
+            $data[] = [
+                'codigo'  => $q->getCodigo(),
+                'empresa' => $q->getEmpresa(),
+                'fecha'   => $q->getFecha(),
+                'total'   => $q->getTotal()
+            ];
+        }
+
+        echo json_encode(["status" => "success", "quotes" => $data]);
+    }
+
+
     // Obtener el detalle de UNA cotización por su código
     public function getQuoteDetail() {
         header('Content-Type: application/json');
@@ -45,7 +70,11 @@ class QuoteController {
         // Llamada al modelo
         $cotizacion = Quote::findByCodigo($codigo);
 
-        if (!$cotizacion || $cotizacion->getUserId() !== $_SESSION['user_id']) {
+        // Verificamos si es el dueño de la cotización O si es el administrador
+        $esDueño = ($cotizacion->getUserId() === $_SESSION['user_id']);
+        $esAdmin = ($_SESSION['user_role'] === 'admin');
+
+        if (!$cotizacion || (!$esDueño && !$esAdmin)) {
             http_response_code(404);
             echo json_encode(["status" => "error", "message" => "Cotización no encontrada o no autorizada"]);
             return;

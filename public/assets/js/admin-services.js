@@ -24,6 +24,43 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  async function loadQuotes() {
+    const quotesList = document.getElementById("quotes-list");
+
+    try {
+      const response = await fetch(
+        "../controllers/QuoteController.php?action=getQuotes",
+      );
+      const result = await response.json();
+
+      if (result.status === "success" && result.quotes.length > 0) {
+        quotesList.innerHTML = result.quotes
+          .map(
+            (q) => `
+          <tr>
+            <td style="font-family: 'JetBrains Mono', monospace; font-weight: bold;">
+                <a href="quote.php?codigo=${q.codigo}" style="color: var(--dark-blue); text-decoration: underline;">
+                    ${q.codigo}
+                </a>
+            </td>
+            <td>${q.empresa}</td>
+            <td style="font-family: 'JetBrains Mono', monospace; color: #38a169; font-weight: bold;">
+                $${parseFloat(q.total).toFixed(2)}
+            </td>
+            <td>${q.fecha}</td>
+          </tr>
+        `,
+          )
+          .join("");
+      } else {
+        quotesList.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 20px;">No hay cotizaciones registradas en el sistema.</td></tr>`;
+      }
+    } catch (error) {
+      console.error("Error al cargar cotizaciones:", error);
+      quotesList.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 20px; color: red;">Error de conexión al cargar el historial.</td></tr>`;
+    }
+  }
+
   serviceSelector.addEventListener("change", () => {
     const selectedOption =
       serviceSelector.options[serviceSelector.selectedIndex];
@@ -77,4 +114,5 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   loadServices();
+  loadQuotes();
 });

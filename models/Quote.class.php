@@ -67,6 +67,13 @@ class Quote {
         return "COT-{$anio}-" . str_pad($correlativo, 4, '0', STR_PAD_LEFT);
     }
 
+    public static function getAll() {
+        $db = Database::getConnection();
+        $stmt = $db->prepare("SELECT * FROM quotes ORDER BY created_at DESC");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_CLASS, 'Quote');
+    }
+
     public static function getByUserId($userId) {
         $db = Database::getConnection();
         $stmt = $db->prepare("SELECT * FROM quotes WHERE user_id = :user_id ORDER BY created_at DESC");
@@ -86,6 +93,7 @@ class Quote {
         $stmt->setFetchMode(PDO::FETCH_CLASS, 'Quote');
         return $stmt->fetch();
     }
+
 
     public function save() {
     $db = Database::getConnection();
