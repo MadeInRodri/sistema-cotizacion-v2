@@ -27,6 +27,46 @@ class ServiceController {
 
     //Métodos de Leo...
 
+    public function saveService() {
+        header('Content-Type: application/json');
+        $data = json_decode(file_get_contents("php://input"), true);
+        
+        if (!$data) {
+            echo json_encode(["status" => "error", "message" => "No se recibieron datos"]);
+            return;
+        }
+
+        try {
+            $service = new Service();
+            $reflector = new ReflectionClass($service);
+
+            // 1. Manejo del ID (Sin setAccessible porque ya no hace falta en PHP 8.1+)
+            if (!empty($data['id'])) {
+                $propId = $reflector->getProperty('id');
+                $propId->setValue($service, $data['id']);
+            }
+
+            // 2. Usamos los Setters que SÍ existen en tu modelo
+            $service->setName($data['name']);
+            $service->setPrice($data['price']);
+            $service->setCategoryId($data['category_id']);
+
+            // 3. Manejo de la descripción
+            $propDesc = $reflector->getProperty('description');
+            $propDesc->setValue($service, $data['description']);
+
+            // 4. Guardamos usando el método del modelo
+            if ($service->save()) {
+                echo json_encode(["status" => "success", "message" => "Servicio guardado correctamente"]);
+            } else {
+                echo json_encode(["status" => "error", "message" => "Error al ejecutar save()"]);
+            }
+
+        } catch (Exception $e) {
+            echo json_encode(["status" => "error", "message" => $e->getMessage()]);
+        }
+    }
+
 }
 
 // --- MINI ENRUTADOR API ---
